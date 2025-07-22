@@ -1,0 +1,118 @@
+# Configuration des modèles pour bankruptcy prediction
+
+models:
+  xgboost:
+    name: "XGBoost Bankruptcy Classifier"
+    class_weight: "balanced"
+    parameters:
+      max_depth: 6
+      learning_rate: 0.1
+      n_estimators: 200
+      subsample: 0.9
+      colsample_bytree: 0.9
+      random_state: 42
+    
+    hyperparameter_tuning:
+      max_depth: [4, 5, 6, 7]
+      learning_rate: [0.01, 0.05, 0.1, 0.2]
+      n_estimators: [100, 200, 300, 500]
+      subsample: [0.8, 0.9, 1.0]
+      colsample_bytree: [0.8, 0.9, 1.0]
+  
+  lightgbm:
+    name: "LightGBM Bankruptcy Classifier"
+    class_weight: "balanced"
+    parameters:
+      num_leaves: 50
+      learning_rate: 0.05
+      n_estimators: 300
+      max_depth: 10
+      min_child_samples: 30
+      random_state: 42
+      verbosity: -1
+    
+    hyperparameter_tuning:
+      num_leaves: [31, 50, 70, 100]
+      learning_rate: [0.01, 0.05, 0.1]
+      n_estimators: [200, 300, 500]
+      max_depth: [5, 10, 15]
+      min_child_samples: [20, 30, 50]
+  
+  random_forest:
+    name: "Random Forest Bankruptcy Classifier"
+    class_weight: "balanced"
+    parameters:
+      n_estimators: 200
+      max_depth: 15
+      min_samples_split: 5
+      min_samples_leaf: 2
+      random_state: 42
+      n_jobs: -1
+    
+    hyperparameter_tuning:
+      n_estimators: [100, 200, 300]
+      max_depth: [10, 15, 20, None]
+      min_samples_split: [2, 5, 10]
+      min_samples_leaf: [1, 2, 4]
+
+ensemble:
+  voting:
+    models: ["xgboost", "lightgbm", "random_forest"]
+    voting: "soft"
+    weights: [0.4, 0.4, 0.2]
+  
+  stacking:
+    base_models: ["xgboost", "lightgbm", "random_forest"]
+    meta_model: "logistic_regression"
+    cv_folds: 5
+
+feature_engineering:
+  financial_ratios:
+    # Nouveaux ratios dérivés
+    - name: "liquidity_score"
+      formula: "current_ratio * quick_ratio * cash_ratio"
+    - name: "profitability_score" 
+      formula: "roa * roe * gross_margin"
+    - name: "leverage_risk"
+      formula: "debt_ratio * (1 - equity_ratio)"
+    - name: "efficiency_score"
+      formula: "asset_turnover * inventory_turnover"
+  
+  temporal_features:
+    enabled: true
+    lookback_periods: [1, 2, 3]
+    
+  sector_features:
+    enabled: true
+    benchmark_comparison: true
+
+evaluation:
+  metrics:
+    primary: "roc_auc"
+    secondary: ["precision", "recall", "f1", "precision_at_k"]
+  
+  business_metrics:
+    - expected_loss
+    - false_positive_cost
+    - early_warning_value
+    
+  cross_validation:
+    folds: 5
+    stratify: true
+    
+  test_scenarios:
+    - name: "crisis_period"
+      filter: "years_before_bankruptcy <= 2"
+    - name: "early_warning"
+      filter: "years_before_bankruptcy >= 3"
+
+mlflow:
+  experiment_name: "polish_bankruptcy_prediction"
+  run_name_template: "{model_name}_{timestamp}"
+  
+  logging:
+    log_models: true
+    log_artifacts: true
+    log_feature_importance: true
+    log_confusion_matrix: true
+    log_roc_curve: true

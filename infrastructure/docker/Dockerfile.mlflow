@@ -1,0 +1,33 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    postgresql-client \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create artifacts directory
+RUN mkdir -p /app/artifacts
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow.db
+ENV MLFLOW_DEFAULT_ARTIFACT_ROOT=./artifacts
+
+CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000"]
