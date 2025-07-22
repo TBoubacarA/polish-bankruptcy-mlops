@@ -10,18 +10,18 @@
 
 ## 📋 Table of Contents
 
-- [🎯 Overview](#-overview)
-- [✨ Features](#-features)
-- [🏗️ Architecture](#️-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [📊 Dataset](#-dataset)
-- [🤖 Models](#-models)
-- [🔧 API Usage](#-api-usage)
-- [🧪 Testing](#-testing)
-- [📈 MLflow Tracking](#-mlflow-tracking)
-- [🐳 Docker Deployment](#-docker-deployment)
-- [📚 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Architecture](#️-architecture)
+- [Quick Start](#-quick-start)
+- [Dataset](#-dataset)
+- [Models](#-models)
+- [API Usage](#-api-usage)
+- [Testing](#-testing)
+- [MLflow Tracking](#-mlflow-tracking)
+- [Docker Deployment](#-docker-deployment)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
 
 ## 🎯 Overview
 
